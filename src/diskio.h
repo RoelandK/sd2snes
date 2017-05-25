@@ -9,11 +9,6 @@
 extern "C" {
 #endif
 
-#define _USE_WRITE	1	/* 1: Enable disk_write function */
-#define _USE_IOCTL	1	/* 1: Enable disk_ioctl fucntion */
-
-#include <arm/NXP/LPC17xx/LPC17xx.h>
-
 #include "integer.h"
 
 
@@ -29,26 +24,6 @@ typedef enum {
 	RES_PARERR		/* 4: Invalid Parameter */
 } DRESULT;
 
-/**
- * struct diskinfo0_t - disk info data structure for page 0
- * @validbytes : Number of valid bytes in this struct
- * @maxpage    : Highest diskinfo page supported
- * @disktype   : type of the disk (DISK_TYPE_* values)
- * @sectorsize : sector size divided by 256
- * @sectorcount: number of sectors on the disk
- *
- * This is the struct returned in the data buffer when disk_getinfo
- * is called with page=0.
- */
-typedef struct {
-  uint8_t  validbytes;
-  uint8_t  maxpage;
-  uint8_t  disktype;
-  uint8_t  sectorsize;   /* divided by 256 */
-  uint32_t sectorcount;  /* 2 TB should be enough... (512 byte sectors) */
-} diskinfo0_t;
-
-
 
 /*---------------------------------------*/
 /* Prototypes for disk control functions */
@@ -59,24 +34,6 @@ DSTATUS disk_status (BYTE pdrv);
 DRESULT disk_read (BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
 DRESULT disk_write (BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
 DRESULT disk_ioctl (BYTE pdrv, BYTE cmd, void* buff);
-
-void disk_init(void);
-
-/* Will be set to DISK_ERROR if any access on the card fails */
-enum diskstates { DISK_CHANGED = 0, DISK_REMOVED, DISK_OK, DISK_ERROR };
-
-extern int sd_offload, ff_sd_offload, sd_offload_tgt, newcard;
-extern int sd_offload_partial;
-extern uint16_t sd_offload_partial_start;
-extern uint16_t sd_offload_partial_end;
-extern volatile enum diskstates disk_state;
-
-/* Disk type - part of the external API except for ATA2! */
-#define DISK_TYPE_ATA        0
-#define DISK_TYPE_ATA2       1
-#define DISK_TYPE_SD         2
-#define DISK_TYPE_DF         3
-#define DISK_TYPE_NONE       7
 
 
 /* Disk Status Bits (DSTATUS) */
@@ -107,6 +64,9 @@ extern volatile enum diskstates disk_state;
 #define MMC_GET_CID			12	/* Get CID */
 #define MMC_GET_OCR			13	/* Get OCR */
 #define MMC_GET_SDSTAT		14	/* Get SD status */
+#define ISDIO_READ			55	/* Read data form SD iSDIO register */
+#define ISDIO_WRITE			56	/* Write data to SD iSDIO register */
+#define ISDIO_MRITE			57	/* Masked write data to SD iSDIO register */
 
 /* ATA/CF specific ioctl command */
 #define ATA_GET_REV			20	/* Get F/W revision */
